@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MongoDB Changes Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #status { margin: 10px 0; padding: 10px; }
+        .connected { background-color: #dff0d8; color: #3c763d; }
+        .disconnected { background-color: #f2dede; color: #a94442; }
+        #changes { margin-top: 20px; }
+        .change { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>MongoDB Changes Monitor</h1>
+    <div id="status" class="disconnected">Disconnected</div>
+    <div id="changes"></div>
+
+    <script>
+        const socket = io('http://localhost:3000', {
+            transports: ['websocket']
+        });
+
+        const statusDiv = document.getElementById('status');
+        const changesDiv = document.getElementById('changes');
+
+        socket.on('connect', () => {
+            statusDiv.textContent = 'Connected!';
+            statusDiv.className = 'status connected';
+            console.log('Connected to server');
+        });
+
+        socket.on('disconnect', () => {
+            statusDiv.textContent = 'Disconnected';
+            statusDiv.className = 'status disconnected';
+            console.log('Disconnected from server');
+        });
+
+        socket.on('visitor_update', (data) => {
+            console.log('Received update:', data);
+            const changeDiv = document.createElement('div');
+            changeDiv.className = 'change';
+            changeDiv.textContent = JSON.stringify(data, null, 2);
+            changesDiv.appendChild(changeDiv);
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+        });
+    </script>
+</body>
+</html> 
